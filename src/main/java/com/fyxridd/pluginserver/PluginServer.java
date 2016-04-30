@@ -5,21 +5,25 @@ import com.fyxridd.netty.common.message.MessageEncoder;
 import com.fyxridd.netty.common.message.MessageExtra;
 import com.fyxridd.netty.common.message.debug.MessageDebugDecoder;
 import com.fyxridd.netty.common.message.debug.MessageDebugEncoder;
+import com.fyxridd.netty.common.util.Util;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class PluginServer {
+public class PluginServer implements InitializingBean {
     @Autowired
     private Config config;
 
-    public PluginServer() {
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Util.log(">>>PluginServer");
+
+        assert config == null;
+
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -31,26 +35,25 @@ public class PluginServer {
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
                                     //In
-                            .addLast(new MessageDebugDecoder(), new MessageDecoder() {
-                                @Override
-                                protected void handle(MessageExtra msg) {
+                                    .addLast(new MessageDebugDecoder(), new MessageDecoder() {
+                                        @Override
+                                        protected void handle(MessageExtra msg) {
 
-                                }
-                            })
+                                        }
+                                    })
                                     //Out
-                            .addLast(new MessageEncoder(), new MessageDebugEncoder());
+                                    .addLast(new MessageEncoder(), new MessageDebugEncoder());
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-            try {
-                ChannelFuture f = b.bind(config.getPort()).sync();
-
-                f.channel().closeFuture().sync();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            b.bind(config.getPort()).addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    future.channel().closeFuture();
+                }
+            });
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
