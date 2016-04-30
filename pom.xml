@@ -121,6 +121,11 @@
             <artifactId>netty-all</artifactId>
             <version>4.0.36.Final</version>
         </dependency>
-
+        <!--netty common-->
+        <dependency>
+            <groupId>com.fyxridd</groupId>
+            <artifactId>NettyCommon</artifactId>
+            <version>[1.0.0,)</version>
+        </dependency>
     </dependencies>
 </project>
