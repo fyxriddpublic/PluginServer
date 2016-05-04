@@ -1,8 +1,8 @@
 package com.fyxridd.pluginserver;
 
-import com.fyxridd.netty.common.message.MessageDecoder;
-import com.fyxridd.netty.common.message.MessageEncoder;
-import com.fyxridd.netty.common.message.MessageExtra;
+import com.fyxridd.netty.common.message.coder.MessageDecoder;
+import com.fyxridd.netty.common.message.coder.MessageEncoder;
+import com.fyxridd.netty.common.message.v1.Ver1Message;
 import com.fyxridd.netty.common.message.debug.MessageDebugDecoder;
 import com.fyxridd.netty.common.message.debug.MessageDebugEncoder;
 import com.fyxridd.netty.common.util.Util;
@@ -37,7 +37,7 @@ public class PluginServer implements InitializingBean {
                                     //In
                                     .addLast(new MessageDebugDecoder(), new MessageDecoder() {
                                         @Override
-                                        protected void handle(MessageExtra msg) {
+                                        protected void handle(Ver1Message msg) {
 
                                         }
                                     })
