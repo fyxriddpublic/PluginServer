@@ -1,10 +1,11 @@
 package com.fyxridd.pluginserver;
 
-import com.fyxridd.netty.common.message.coder.MessageDecoder;
-import com.fyxridd.netty.common.message.coder.MessageEncoder;
-import com.fyxridd.netty.common.message.v1.Ver1Message;
-import com.fyxridd.netty.common.message.debug.MessageDebugDecoder;
-import com.fyxridd.netty.common.message.debug.MessageDebugEncoder;
+import com.fyxridd.netty.common.coder.Lv1Decoder;
+import com.fyxridd.netty.common.coder.Lv1Encoder;
+import com.fyxridd.netty.common.coder.Lv2Decoder;
+import com.fyxridd.netty.common.coder.Lv2Encoder;
+import com.fyxridd.netty.common.debug.MessageDebugDecoder;
+import com.fyxridd.netty.common.debug.MessageDebugEncoder;
 import com.fyxridd.netty.common.util.Util;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -35,14 +36,9 @@ public class PluginServer implements InitializingBean {
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
                                     //In
-                                    .addLast(new MessageDebugDecoder(), new MessageDecoder() {
-                                        @Override
-                                        protected void handle(Ver1Message msg) {
-
-                                        }
-                                    })
+                                    .addLast(new MessageDebugDecoder(), new Lv1Decoder(), new Lv2Decoder())
                                     //Out
-                                    .addLast(new MessageEncoder(), new MessageDebugEncoder());
+                                    .addLast(new Lv2Encoder(), new Lv1Encoder(), new MessageDebugEncoder());
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)
