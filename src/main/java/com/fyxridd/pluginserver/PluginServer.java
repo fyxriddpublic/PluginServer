@@ -1,5 +1,7 @@
 package com.fyxridd.pluginserver;
 
+import com.fyxridd.netty.common.Listener;
+import com.fyxridd.netty.common.MessageMain;
 import com.fyxridd.netty.common.coder.Lv1Decoder;
 import com.fyxridd.netty.common.coder.Lv1Encoder;
 import com.fyxridd.netty.common.coder.Lv2Decoder;
@@ -7,6 +9,7 @@ import com.fyxridd.netty.common.coder.Lv2Encoder;
 import com.fyxridd.netty.common.debug.MessageDebugDecoder;
 import com.fyxridd.netty.common.debug.MessageDebugEncoder;
 import com.fyxridd.netty.common.util.Util;
+import com.fyxridd.pluginserver.messages.Login;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -16,6 +19,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class PluginServer implements InitializingBean {
+    private static final String NAME_SPACE = "PluginServer";
     @Autowired
     private Config config;
 
@@ -48,6 +52,15 @@ public class PluginServer implements InitializingBean {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     future.channel().closeFuture();
+                }
+            });
+
+            //注册监听
+            MessageMain.getMessageManager().registerNamespace(NAME_SPACE);
+            MessageMain.getMessageManager().listen(NAME_SPACE, Login.class, new Listener<Login>() {
+                @Override
+                public void onEvent(Login msg) {
+
                 }
             });
         } finally {
