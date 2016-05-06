@@ -1,5 +1,6 @@
 package com.fyxridd.pluginserver;
 
+import com.fyxridd.netty.common.Bootstrap;
 import com.fyxridd.netty.common.coder.ByteBufToPacketContextDecoder;
 import com.fyxridd.netty.common.coder.PacketContextToByteBufEncoder;
 import com.fyxridd.netty.common.debug.MessageDebugDecoder;
@@ -17,13 +18,14 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class PluginServer implements InitializingBean {
-    private static final String NAME_SPACE = "PluginServer";
     @Autowired
     private Config config;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         Util.log(">>>PluginServer");
+
+        Bootstrap.bootstrap();
 
         assert config == null;
 
@@ -41,7 +43,7 @@ public class PluginServer implements InitializingBean {
                                     .addLast(new MessageDebugDecoder(), new JdkZlibDecoder(), new ByteBufToPacketContextDecoder(), new SimpleChannelInboundHandler<PacketContext>() {
                                         @Override
                                         protected void channelRead0(ChannelHandlerContext ctx, PacketContext msg) throws Exception {
-
+                                            Util.log("Received: "+msg.getPacketType().getPacketId()+" Ver:"+msg.getPacketVer()+" "+msg.getPacket());
                                         }
                                     })
                                     //Out
